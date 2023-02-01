@@ -26,6 +26,11 @@ implementation("com.neko233:easy-xml:1.0.0")
 # Use
 ```java
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
 @XmlRootElement(name = "demo") // your root name | <root ...>
 @XmlAccessorType(XmlAccessType.FIELD) // how to set value
 public class Demo {
