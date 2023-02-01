@@ -1,4 +1,7 @@
 # Easy-XML
+
+@SolarisNeko
+
 XML ORM Util
 
 Use like FastJSON so easy
@@ -70,3 +73,15 @@ XML to object
         Assert.assertEquals(1, (int) demo.getRootId());
     }
 ```
+
+# License
+Easy-XML is released under the Apache 2.0 license.
+
+
+# Contact Us
+
+EMail: 1417015340@qq.com
+
+
+
+
