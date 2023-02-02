@@ -1,5 +1,4 @@
-package com.neko233.easyxml.dto;
-
+package com.neko233.easyxml.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,25 +7,21 @@ import lombok.NoArgsConstructor;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author SolarisNeko on 2023-01-01
  **/
-@XmlRootElement(name = "root")
+@XmlRootElement(name = "demo")
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AllXml {
+public class Demo {
 
-    @XmlElement(name = "demo")
-    private Demo demo;
-
-    @XmlElement(name = "cityRoot")
-    private CityRoot city;
-
+    @XmlAttribute(name = "rootId")
+    private Integer rootId;
 
 }

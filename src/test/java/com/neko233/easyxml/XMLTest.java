@@ -1,8 +1,9 @@
 package com.neko233.easyxml;
 
 
-import com.neko233.easyxml.dto.AllXml;
-import com.neko233.easyxml.dto.Demo;
+import com.neko233.easyxml.data.AllXml;
+import com.neko233.easyxml.data.Demo;
+import com.neko233.easyxml.data.DomObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,6 +12,20 @@ import org.junit.Test;
  * Date on 2023-01-01
  */
 public class XMLTest {
+
+    @Test
+    public void toObject_original() {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                "<root name=\"test\">" +
+                "\t<demo id=\"1\"/>" +
+                "</root>";
+
+        DomObject domObject = XML.toObject(xml);
+
+        Assert.assertEquals("root", domObject.getRootName());
+        Assert.assertEquals("test", domObject.getAttribute("name"));
+        Assert.assertEquals("1", domObject.getChild(0).getAttribute("id"));
+    }
 
     @Test
     public void toObject_demo() {

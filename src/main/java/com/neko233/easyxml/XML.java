@@ -1,8 +1,15 @@
 package com.neko233.easyxml;
 
+import com.neko233.easyxml.data.DomObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -10,6 +17,8 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+
+import static com.neko233.easyxml.data.XmlTree.initNodeTree;
 
 /**
  * @author SolarisNeko on 2023-01-01
@@ -32,6 +41,31 @@ public interface XML {
             throw new EasyXmlException("[EasyXml] xml -> object error", e);
         }
     }
+
+    static DomObject toObject(String xml) {
+        Document document = null;
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        StringReader characterStream = null;
+        try {
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            characterStream = new StringReader(xml);
+            InputSource is = new InputSource(characterStream);
+            document = db.parse(is);
+            characterStream.close();
+        } catch (Exception e) {
+            throw new RuntimeException("[XmlUtil] can not parse xml content", e);
+        } finally {
+            if (characterStream != null) {
+                characterStream.close();
+            }
+        }
+        final Node root = document.getDocumentElement();
+
+        final DomObject domMap = new DomObject(root.getNodeName());
+        initNodeTree(root, domMap);
+        return domMap;
+    }
+
 
     /**
      * 将对象转为流程XML

@@ -1,4 +1,4 @@
-package com.neko233.easyxml.dto;
+package com.neko233.easyxml.data;
 
 import lombok.Data;
 
