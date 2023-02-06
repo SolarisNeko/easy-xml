@@ -60,8 +60,8 @@ public interface XML {
             }
         }
         final Node root = document.getDocumentElement();
-
-        final DomObject domMap = new DomObject(root.getNodeName());
+        String nodeValue = root.getNodeValue();
+        final DomObject domMap = new DomObject(root.getNodeName(), nodeValue, null);
         initNodeTree(root, domMap);
         return domMap;
     }

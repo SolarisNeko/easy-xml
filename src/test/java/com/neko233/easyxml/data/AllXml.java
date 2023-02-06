@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+
 /**
  * @author SolarisNeko on 2023-01-01
  **/
@@ -21,6 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @AllArgsConstructor
 @Builder
 public class AllXml {
+
 
     @XmlElement(name = "demo")
     private Demo demo;

@@ -1,14 +1,16 @@
 # Easy-XML
 
-@SolarisNeko
 
-XML ORM Util
-
-Use like FastJSON so easy
-
-=w= 使用 XML 就和 JSON 一样～
+XML ORM Util, Use like `FastJSON` 
 
 ps: XML features you must use your Object to parse, can't not use Map Tree 
+
+# JDK Support
+| JDK | isOk |
+|:----|-----:|
+| 8   | ok |
+| 11  | ok |
+| 17  | ok |
 
 
 # Dependency
@@ -27,6 +29,19 @@ implementation("com.neko233:easy-xml:1.1.0")
 ```
 
 # Use
+## Annotation
+```java
+@XmlRootElement(name = "root")
+//<root ... />
+
+@XmlAttribute(name = "rootId")
+//<root rootId="???" />
+
+@XmlAccessorType(XmlAccessType.FIELD)
+//how to create your field value
+
+```
+## Code
 ```java
 
 import javax.xml.bind.annotation.XmlAccessType;

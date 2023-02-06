@@ -28,6 +28,25 @@ public class XMLTest {
     }
 
     @Test
+    public void toObject_brother() {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                "<root name=\"test\">" +
+                "\t<demo id=\"1\"/>" +
+                "\t<demo id=\"2\">123</demo>" +
+                "\t<demo id=\"3\"/>" +
+                "</root>";
+
+        DomObject domObject = XML.toObject(xml);
+
+        DomObject dom2 = domObject.getChild(1);
+        DomObject dom3 = domObject.getChild(2);
+        Assert.assertEquals("2", dom2.getAttribute("id"));
+        Assert.assertEquals("123", dom2.getNodeValue());
+        Assert.assertEquals("1", dom2.left().getAttribute("id"));
+        Assert.assertEquals(dom3, dom2.right());
+    }
+
+    @Test
     public void toObject_demo() {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><demo rootId=\"1\"/>";
 

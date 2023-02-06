@@ -1,8 +1,5 @@
 package com.neko233.easyxml.data;
 
-import com.neko233.easyxml.EasyXmlException;
-import com.neko233.easyxml.XML;
-
 import java.util.*;
 
 /**
@@ -12,12 +9,19 @@ import java.util.*;
 public class DomObject {
 
     private final String rootName;
+    private final String nodeValue;
     private final Map<String, String> attributes;
+
+    private final DomObject parentNode;
+    private DomObject leftNode;
+    private DomObject rightNode;
     private final List<DomObject> childrenNodes;
 
-    public DomObject(String rootName) {
+    public DomObject(String rootName, String nodeValue, DomObject parentNode) {
+        this.nodeValue = Optional.ofNullable(nodeValue).orElse("").trim();
         this.rootName = rootName;
         this.attributes = new HashMap<>(0);
+        this.parentNode = parentNode;
         this.childrenNodes = new ArrayList<>(0);
     }
 
@@ -55,34 +59,74 @@ public class DomObject {
         attributes.remove(childNode);
     }
 
+
+    public DomObject left() {
+        return this.leftNode;
+    }
+    public DomObject right() {
+        return this.rightNode;
+    }
+
+    // --------- @Data ----
+
+
+    public String getNodeValue() {
+        return nodeValue;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public DomObject getParentNode() {
+        return parentNode;
+    }
+
+    public DomObject getLeftNode() {
+        return leftNode;
+    }
+
+    public void setLeftNode(DomObject leftNode) {
+        this.leftNode = leftNode;
+    }
+
+    public DomObject getRightNode() {
+        return rightNode;
+    }
+
+    public void setRightNode(DomObject rightNode) {
+        this.rightNode = rightNode;
+    }
+
+    public List<DomObject> getChildrenNodes() {
+        return childrenNodes;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof DomObject)) return false;
 
         DomObject domObject = (DomObject) o;
 
-        if (!Objects.equals(attributes, domObject.attributes)) return false;
-        return Objects.equals(childrenNodes, domObject.childrenNodes);
+        if (getRootName() != null ? !getRootName().equals(domObject.getRootName()) : domObject.getRootName() != null)
+            return false;
+        if (getNodeValue() != null ? !getNodeValue().equals(domObject.getNodeValue()) : domObject.getNodeValue() != null)
+            return false;
+        if (getAttributes() != null ? !getAttributes().equals(domObject.getAttributes()) : domObject.getAttributes() != null)
+            return false;
+        if (getParentNode() != null ? !getParentNode().equals(domObject.getParentNode()) : domObject.getParentNode() != null)
+            return false;
+        return getChildrenNodes() != null ? getChildrenNodes().equals(domObject.getChildrenNodes()) : domObject.getChildrenNodes() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = attributes != null ? attributes.hashCode() : 0;
-        result = 31 * result + (childrenNodes != null ? childrenNodes.hashCode() : 0);
+        int result = getRootName() != null ? getRootName().hashCode() : 0;
+        result = 31 * result + (getNodeValue() != null ? getNodeValue().hashCode() : 0);
+        result = 31 * result + (getAttributes() != null ? getAttributes().hashCode() : 0);
+        result = 31 * result + (getParentNode() != null ? getParentNode().hashCode() : 0);
+        result = 31 * result + (getChildrenNodes() != null ? getChildrenNodes().hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "DomObject{" +
-                "rootName='" + rootName + '\'' +
-                ", attributes=" + attributes +
-                ", childrenNodes=" + childrenNodes +
-                '}';
-    }
-
-    public String toXml() throws EasyXmlException {
-        return XML.toXmlString(this);
     }
 }
