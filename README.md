@@ -12,6 +12,7 @@ ps: XML features you must use your Object to parse, can't not use Map Tree
 | 11  | ok |
 | 17  | ok |
 
+since from v1.2.0
 
 # Dependency
 ## maven
