@@ -19,13 +19,13 @@ ps: XML features you must use your Object to parse, can't not use Map Tree
 <dependency>
    <groupId>com.neko233</groupId>
    <artifactId>easy-xml</artifactId>
-   <version>1.1.0</version>
+   <version>1.2.0</version>
 </dependency>
 ```
 
 ## Gradle
 ```kotlin
-implementation("com.neko233:easy-xml:1.1.0")
+implementation("com.neko233:easy-xml:1.2.0")
 ```
 
 # Use
