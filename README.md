@@ -90,6 +90,30 @@ XML to object
     }
 ```
 
+## XmlFiner (DOM Tree 查询语法)
+简易的爬虫向 DSL 语法. 
+复杂的可以 DOM Object -> XML -> Xpath.
+```java
+
+    @Test
+    public void test_find_3_byRegex() {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                "<root name=\"test\">" +
+                "\t<demo id=\"1\">" +
+                "\t\t<node3rd id=\"1-1\"/>" +
+                "\t</demo>" +
+                "\t<demo id=\"2\"/>" +
+                "</root>";
+
+        DomObject domObject = XML.toObject(xml);
+
+        List<DomObject> domObjects = XmlFinder.find(domObject, "/demo/node3*");
+        assert domObjects != null;
+        String id = domObjects.get(0).getAttribute("id");
+        Assert.assertEquals("1-1", id);
+    }
+```
+
 # License
 Easy-XML is released under the Apache 2.0 license.
 
