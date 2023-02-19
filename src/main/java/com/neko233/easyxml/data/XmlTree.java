@@ -46,7 +46,7 @@ public class XmlTree {
             }
 
             final DomObject childDomObject = new DomObject(nodeName, nodeValue, parentDomObject);
-            // init tree
+            // recursive Tree
             final DomObject domObject = initNodeTree(childNode, childDomObject);
 
             parentDomObject.addChild(domObject);

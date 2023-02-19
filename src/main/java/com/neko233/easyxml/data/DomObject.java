@@ -8,6 +8,8 @@ import java.util.*;
  */
 public class DomObject {
 
+    // xml path = /path/to/your/node, it not remember your index
+    private final String xmlPath;
     private final String rootName;
     private final String nodeValue;
     private final Map<String, String> attributes;
@@ -18,11 +20,27 @@ public class DomObject {
     private final List<DomObject> childrenNodes;
 
     public DomObject(String rootName, String nodeValue, DomObject parentNode) {
+        this.xmlPath = generateDomPath(rootName, parentNode);
         this.nodeValue = Optional.ofNullable(nodeValue).orElse("").trim();
         this.rootName = rootName;
         this.attributes = new HashMap<>(0);
         this.parentNode = parentNode;
         this.childrenNodes = new ArrayList<>(0);
+    }
+
+    private String generateDomPath(String rootName, DomObject parentNode) {
+        if (parentNode == null) {
+            return "/";
+        }
+        if ("/".equals(parentNode.xmlPath)) {
+            return "/" + rootName;
+        }
+        return parentNode.xmlPath + "/" + rootName;
+
+    }
+
+    public String getXmlPath() {
+        return xmlPath;
     }
 
     public String getRootName() {
@@ -63,6 +81,7 @@ public class DomObject {
     public DomObject left() {
         return this.leftNode;
     }
+
     public DomObject right() {
         return this.rightNode;
     }
@@ -120,13 +139,28 @@ public class DomObject {
         return getChildrenNodes() != null ? getChildrenNodes().equals(domObject.getChildrenNodes()) : domObject.getChildrenNodes() == null;
     }
 
+    /**
+     * no child tree
+     * @return hashcode no child node
+     */
     @Override
     public int hashCode() {
         int result = getRootName() != null ? getRootName().hashCode() : 0;
+        result = 31 * result + (getXmlPath() != null ? getXmlPath().hashCode() : 0);
         result = 31 * result + (getNodeValue() != null ? getNodeValue().hashCode() : 0);
         result = 31 * result + (getAttributes() != null ? getAttributes().hashCode() : 0);
         result = 31 * result + (getParentNode() != null ? getParentNode().hashCode() : 0);
-        result = 31 * result + (getChildrenNodes() != null ? getChildrenNodes().hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "DomObject{" +
+                "xmlPath='" + xmlPath + '\'' +
+                ", rootName='" + rootName + '\'' +
+                ", nodeValue='" + nodeValue + '\'' +
+                ", attributes=" + attributes +
+                ", parentNode=" + parentNode +
+                '}';
     }
 }

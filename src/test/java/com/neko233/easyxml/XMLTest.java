@@ -28,6 +28,34 @@ public class XMLTest {
     }
 
     @Test
+    public void test_domObject_domPath_1() {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                "<root name=\"test\">" +
+                "\t<demo id=\"1\"/>" +
+                "</root>";
+
+        DomObject domObject = XML.toObject(xml);
+
+        Assert.assertEquals("/demo", domObject.getChild(0).getXmlPath());
+    }
+
+    @Test
+    public void test_domObject_domPath_2() {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                "<root name=\"test\">" +
+                "\t<demo id=\"1\">" +
+                "\t\t<node3rd id=\"1\"/>" +
+                "\t</demo>" +
+                "\t<demo id=\"2\"/>" +
+                "</root>";
+
+        DomObject domObject = XML.toObject(xml);
+
+        DomObject node3rd_1 = domObject.getChild(0).getChild(0);
+        Assert.assertEquals("/demo/node3rd", node3rd_1.getXmlPath());
+    }
+
+    @Test
     public void toObject_brother() {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
                 "<root name=\"test\">" +

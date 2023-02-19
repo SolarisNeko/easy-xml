@@ -17,6 +17,11 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.neko233.easyxml.data.XmlTree.initNodeTree;
 
@@ -131,5 +136,24 @@ public interface XML {
         return toObject(xml, xmlType);
     }
 
+
+    /**
+     * XML Node Tree Liner 线性化
+     *
+     * @param domObject dom object
+     * @return liner Tree to List
+     */
+    static List<DomObject> liner(DomObject domObject) {
+        final List<DomObject> rootChildNodes = Optional.ofNullable(domObject.getChildrenNodes())
+                .orElse(new ArrayList<>());
+        final List<DomObject> targetList = new ArrayList<>(rootChildNodes);
+        for (final DomObject childNode : rootChildNodes) {
+            final List<DomObject> liner = liner(childNode);
+            targetList.addAll(liner);
+        }
+        return targetList.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
 
 }
