@@ -92,6 +92,10 @@ public interface XML {
         }
     }
 
+    static  String toXmlString(DomObject obj) throws EasyXmlException {
+        return obj.toXML();
+    }
+
 
     static <T> T toObject(InputStream input, Class<T> xmlType) throws IOException, EasyXmlException {
         return toObject(input, StandardCharsets.UTF_8, xmlType);

@@ -1,5 +1,7 @@
 # RoadMap - EasyXml
 
+## v1.3.1
+1. [Add] DomObject.toXML() : String
 
 ## 1.3.0
 1. [Add] [XmlFinder] query XML object in path language. use like 'Xpath' but simple more.

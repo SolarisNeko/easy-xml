@@ -1,5 +1,20 @@
 package com.neko233.easyxml.data;
 
+
+import com.neko233.easyxml.EasyXmlException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringWriter;
 import java.util.*;
 
 /**
@@ -37,6 +52,61 @@ public class DomObject {
         }
         return parentNode.xmlPath + "/" + rootName;
 
+    }
+
+
+    public String toXML() throws EasyXmlException {
+        return toXML(false);
+    }
+
+    /**
+     * 转为 XML
+     *
+     * @return XML String
+     * @throws EasyXmlException 解析异常
+     */
+    public String toXML(boolean isFormat) throws EasyXmlException {
+        try {
+            DocumentBuilderFactory domFact = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = domFact.newDocumentBuilder();
+            Document doc = builder.newDocument();
+
+            Element el = doc.createElement(this.rootName);
+            this.attributes.forEach(el::setAttribute);
+            el.setNodeValue(this.nodeValue);
+            doc.appendChild(el);
+
+            for (DomObject childrenNode : this.childrenNodes) {
+                createNodeTreeByRecursive(doc, el, childrenNode);
+            }
+
+            DOMSource domSource = new DOMSource(doc);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            String isIndent = isFormat ? "yes" : "no";
+            transformer.setOutputProperty(OutputKeys.INDENT, isIndent);
+            transformer.transform(domSource, result);
+            return writer.toString();
+        } catch (ParserConfigurationException | TransformerException e) {
+            throw new EasyXmlException(e);
+        }
+    }
+
+    private static void createNodeTreeByRecursive(Document doc, Element parentNode, DomObject domObject) {
+        Element currentNode = doc.createElement(domObject.rootName);
+        domObject.attributes.forEach(currentNode::setAttribute);
+        currentNode.setTextContent(domObject.nodeValue);
+        parentNode.appendChild(currentNode);
+
+        List<DomObject> childNodes = domObject.getChildrenNodes();
+        if (childNodes == null || childNodes.size() == 0) {
+            return;
+        }
+        for (DomObject childNode : childNodes) {
+            createNodeTreeByRecursive(doc, currentNode, childNode);
+        }
     }
 
     public String getXmlPath() {
@@ -121,6 +191,7 @@ public class DomObject {
         return childrenNodes;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -141,6 +212,7 @@ public class DomObject {
 
     /**
      * no child tree
+     *
      * @return hashcode no child node
      */
     @Override
