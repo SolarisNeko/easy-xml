@@ -3,7 +3,7 @@ package com.neko233.easyxml;
 
 import com.neko233.easyxml.data.AllXml;
 import com.neko233.easyxml.data.Demo;
-import com.neko233.easyxml.data.DomObject;
+import com.neko233.easyxml.data.XmlObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,11 +20,11 @@ public class XMLTest {
                 "\t<demo id=\"1\"/>" +
                 "</root>";
 
-        DomObject domObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.toObject(xml);
 
-        Assert.assertEquals("root", domObject.getRootName());
-        Assert.assertEquals("test", domObject.getAttribute("name"));
-        Assert.assertEquals("1", domObject.getChild(0).getAttribute("id"));
+        Assert.assertEquals("root", xmlObject.getRootName());
+        Assert.assertEquals("test", xmlObject.getAttribute("name"));
+        Assert.assertEquals("1", xmlObject.getChild(0).getAttribute("id"));
     }
 
     @Test
@@ -34,9 +34,9 @@ public class XMLTest {
                 "\t<demo id=\"1\"/>" +
                 "</root>";
 
-        DomObject domObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.toObject(xml);
 
-        Assert.assertEquals("/demo", domObject.getChild(0).getXmlPath());
+        Assert.assertEquals("/demo", xmlObject.getChild(0).getXmlPath());
     }
 
     @Test
@@ -49,9 +49,9 @@ public class XMLTest {
                 "\t<demo id=\"2\"/>" +
                 "</root>";
 
-        DomObject domObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.toObject(xml);
 
-        DomObject node3rd_1 = domObject.getChild(0).getChild(0);
+        XmlObject node3rd_1 = xmlObject.getChild(0).getChild(0);
         Assert.assertEquals("/demo/node3rd", node3rd_1.getXmlPath());
     }
 
@@ -64,10 +64,10 @@ public class XMLTest {
                 "\t<demo id=\"3\"/>" +
                 "</root>";
 
-        DomObject domObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.toObject(xml);
 
-        DomObject dom2 = domObject.getChild(1);
-        DomObject dom3 = domObject.getChild(2);
+        XmlObject dom2 = xmlObject.getChild(1);
+        XmlObject dom3 = xmlObject.getChild(2);
         Assert.assertEquals("2", dom2.getAttribute("id"));
         Assert.assertEquals("123", dom2.getNodeValue());
         Assert.assertEquals("1", dom2.left().getAttribute("id"));

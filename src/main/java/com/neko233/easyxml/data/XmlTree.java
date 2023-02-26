@@ -18,15 +18,15 @@ public class XmlTree {
     public static final String TEXT_NODE_NAME = "#text";
 
     @NotNull
-    public static DomObject initNodeTree(final Node root, final DomObject parentDomObject) {
+    public static XmlObject initNodeTree(final Node root, final XmlObject parentXmlObject) {
         NamedNodeMap attributes = root.getAttributes();
         for (int i = 0; attributes != null && i < attributes.getLength(); i++) {
             Node attribute = attributes.item(i);
-            parentDomObject.addAttribute(attribute.getNodeName(), attribute.getNodeValue());
+            parentXmlObject.addAttribute(attribute.getNodeName(), attribute.getNodeValue());
         }
 
         final NodeList childNodes = root.getChildNodes();
-        DomObject leftDomObject = null;
+        XmlObject leftXmlObject = null;
         for (int i = 0; childNodes != null && i < childNodes.getLength(); i++) {
             Node childNode = childNodes.item(i);
             if (childNode == null) {
@@ -45,20 +45,20 @@ public class XmlTree {
                 nodeValue = Optional.ofNullable(firstChild.getNodeValue()).orElse("").trim();
             }
 
-            final DomObject childDomObject = new DomObject(nodeName, nodeValue, parentDomObject);
+            final XmlObject childXmlObject = new XmlObject(nodeName, nodeValue, parentXmlObject);
             // recursive Tree
-            final DomObject domObject = initNodeTree(childNode, childDomObject);
+            final XmlObject xmlObject = initNodeTree(childNode, childXmlObject);
 
-            parentDomObject.addChild(domObject);
+            parentXmlObject.addChild(xmlObject);
 
             // brother
-            childDomObject.setLeftNode(leftDomObject);
-            if (leftDomObject != null) {
-                leftDomObject.setRightNode(childDomObject);
+            childXmlObject.setLeftNode(leftXmlObject);
+            if (leftXmlObject != null) {
+                leftXmlObject.setRightNode(childXmlObject);
             }
-            leftDomObject = childDomObject;
+            leftXmlObject = childXmlObject;
         }
-        return parentDomObject;
+        return parentXmlObject;
     }
 
 }

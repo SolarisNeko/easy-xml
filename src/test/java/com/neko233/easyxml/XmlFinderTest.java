@@ -1,6 +1,6 @@
 package com.neko233.easyxml;
 
-import com.neko233.easyxml.data.DomObject;
+import com.neko233.easyxml.data.XmlObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,10 +23,10 @@ public class XmlFinderTest {
                 "\t<demo id=\"2\"/>" +
                 "</root>";
 
-        DomObject domObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.toObject(xml);
 
-        List<DomObject> domObjects = XmlFinder.find(domObject, "/demo");
-        Assert.assertEquals(2, domObjects.size());
+        List<XmlObject> xmlObjects = XmlFinder.find(xmlObject, "/demo");
+        Assert.assertEquals(2, xmlObjects.size());
     }
 
     @Test
@@ -39,11 +39,11 @@ public class XmlFinderTest {
                 "\t<demo id=\"2\"/>" +
                 "</root>";
 
-        DomObject domObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.toObject(xml);
 
-        List<DomObject> domObjects = XmlFinder.find(domObject, "/demo/node3rd");
-        assert domObjects != null;
-        String id = domObjects.get(0).getAttribute("id");
+        List<XmlObject> xmlObjects = XmlFinder.find(xmlObject, "/demo/node3rd");
+        assert xmlObjects != null;
+        String id = xmlObjects.get(0).getAttribute("id");
         Assert.assertEquals("1-1", id);
     }
 
@@ -57,11 +57,11 @@ public class XmlFinderTest {
                 "\t<demo id=\"2\"/>" +
                 "</root>";
 
-        DomObject domObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.toObject(xml);
 
-        List<DomObject> domObjects = XmlFinder.find(domObject, "/demo/node3*");
-        assert domObjects != null;
-        String id = domObjects.get(0).getAttribute("id");
+        List<XmlObject> xmlObjects = XmlFinder.find(xmlObject, "/demo/node3*");
+        assert xmlObjects != null;
+        String id = xmlObjects.get(0).getAttribute("id");
         Assert.assertEquals("1-1", id);
     }
 }

@@ -1,5 +1,10 @@
 # RoadMap - EasyXml
 
+## 1.4.0
+1. [Update] DomObject -> XmlObject
+2. [Refactor] 调整 API. Tree Operate 脱离 get/set, 以类似 get parentNode() / set parentNode(XmlObject) 命名
+3. [Add] 提供修改 (局部) XmlObject 后, 重新 serialize to XML String 机制. 
+
 ## v1.3.1
 1. [Add] DomObject.toXML() : String
 

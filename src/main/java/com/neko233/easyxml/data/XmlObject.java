@@ -18,24 +18,27 @@ import java.io.StringWriter;
 import java.util.*;
 
 /**
+ * XML 对象
+ *
  * @author SolarisNeko
  * Date on 2023-02-02
  */
-public class DomObject {
+public class XmlObject {
 
+    public static final String XML_PATH_SEPERATOR = "/";
     // xml path = /path/to/your/node, it not remember your index
-    private final String xmlPath;
-    private final String rootName;
-    private final String nodeValue;
-    private final Map<String, String> attributes;
+    private String xmlPath;
+    private String rootName;
+    private String nodeValue;
+    private Map<String, String> attributes;
 
-    private final DomObject parentNode;
-    private DomObject leftNode;
-    private DomObject rightNode;
-    private final List<DomObject> childrenNodes;
+    private volatile XmlObject parentNode;
+    private XmlObject leftNode;
+    private XmlObject rightNode;
+    private List<XmlObject> childrenNodes;
 
-    public DomObject(String rootName, String nodeValue, DomObject parentNode) {
-        this.xmlPath = generateDomPath(rootName, parentNode);
+    public XmlObject(String rootName, String nodeValue, XmlObject parentNode) {
+        this.xmlPath = generateXmlPath(rootName, parentNode);
         this.nodeValue = Optional.ofNullable(nodeValue).orElse("").trim();
         this.rootName = rootName;
         this.attributes = new HashMap<>(0);
@@ -43,15 +46,40 @@ public class DomObject {
         this.childrenNodes = new ArrayList<>(0);
     }
 
-    private String generateDomPath(String rootName, DomObject parentNode) {
+    /**
+     * 生成 XML Path
+     *
+     * @param rootName   当前节点名
+     * @param parentNode 父节点
+     * @return XML Path
+     */
+    private String generateXmlPath(String rootName, XmlObject parentNode) {
         if (parentNode == null) {
+            updateXmlPathListener();
             return "/";
         }
         if ("/".equals(parentNode.xmlPath)) {
+            updateXmlPathListener();
             return "/" + rootName;
         }
+
+        updateXmlPathListener();
         return parentNode.xmlPath + "/" + rootName;
 
+    }
+
+    private void updateXmlPathListener() {
+        if (Objects.equals("/", this.xmlPath)) {
+            return;
+        }
+        List<XmlObject> children = this.getChildren();
+        if (children == null || children.size() == 0) {
+            return;
+        }
+        // tree update xmlPath
+        for (XmlObject childNode : children) {
+            childNode.xmlPath = generateXmlPath(childNode.rootName, this);
+        }
     }
 
 
@@ -76,7 +104,7 @@ public class DomObject {
             el.setNodeValue(this.nodeValue);
             doc.appendChild(el);
 
-            for (DomObject childrenNode : this.childrenNodes) {
+            for (XmlObject childrenNode : this.childrenNodes) {
                 createNodeTreeByRecursive(doc, el, childrenNode);
             }
 
@@ -94,17 +122,24 @@ public class DomObject {
         }
     }
 
-    private static void createNodeTreeByRecursive(Document doc, Element parentNode, DomObject domObject) {
-        Element currentNode = doc.createElement(domObject.rootName);
-        domObject.attributes.forEach(currentNode::setAttribute);
-        currentNode.setTextContent(domObject.nodeValue);
+    /**
+     * 创建节点
+     *
+     * @param doc
+     * @param parentNode
+     * @param xmlObject
+     */
+    private static void createNodeTreeByRecursive(Document doc, Element parentNode, XmlObject xmlObject) {
+        Element currentNode = doc.createElement(xmlObject.rootName);
+        xmlObject.attributes.forEach(currentNode::setAttribute);
+        currentNode.setTextContent(xmlObject.nodeValue);
         parentNode.appendChild(currentNode);
 
-        List<DomObject> childNodes = domObject.getChildrenNodes();
+        List<XmlObject> childNodes = xmlObject.getChildrenNodes();
         if (childNodes == null || childNodes.size() == 0) {
             return;
         }
-        for (DomObject childNode : childNodes) {
+        for (XmlObject childNode : childNodes) {
             createNodeTreeByRecursive(doc, currentNode, childNode);
         }
     }
@@ -130,31 +165,72 @@ public class DomObject {
         attributes.remove(attributeName);
     }
 
-    public DomObject getChild(int index) {
+    public XmlObject getChild(int index) {
         return childrenNodes.get(index);
     }
 
-    public List<DomObject> getChildren() {
+    public List<XmlObject> getChildren() {
         return childrenNodes;
     }
 
-    public void addChild(DomObject childNode) {
+    public void addChild(XmlObject childNode) {
         childrenNodes.add(childNode);
     }
 
 
-    public void removeChild(DomObject childNode) {
+    public void removeChild(XmlObject childNode) {
         attributes.remove(childNode);
     }
 
 
-    public DomObject left() {
+    public XmlObject left() {
         return this.leftNode;
     }
 
-    public DomObject right() {
+    public XmlObject left(XmlObject leftNode) {
+        this.leftNode = leftNode;
+        return this;
+    }
+
+    public XmlObject right() {
         return this.rightNode;
     }
+
+    public XmlObject right(XmlObject rightNode) {
+        this.rightNode = rightNode;
+        return this;
+    }
+
+    /**
+     * 父节点
+     * @return
+     */
+    public XmlObject parentNode() {
+        return parentNode;
+    }
+
+    /**
+     * [Special] 设置父节点
+     */
+    public XmlObject parentNode(XmlObject parentNode) {
+        this.parentNode = parentNode;
+        this.xmlPath = generateXmlPath(this.rootName, parentNode);
+        return this;
+    }
+
+    /**
+     * 当前节点名
+     *
+     * @param newRootName
+     * @return
+     */
+    public XmlObject rootName(String newRootName) {
+        this.rootName = newRootName;
+        this.xmlPath = generateXmlPath(this.rootName, this.parentNode);
+
+        return this;
+    }
+
 
     // --------- @Data ----
 
@@ -167,47 +243,61 @@ public class DomObject {
         return attributes;
     }
 
-    public DomObject getParentNode() {
-        return parentNode;
-    }
 
-    public DomObject getLeftNode() {
+    public XmlObject getLeftNode() {
         return leftNode;
     }
 
-    public void setLeftNode(DomObject leftNode) {
+    public void setLeftNode(XmlObject leftNode) {
         this.leftNode = leftNode;
     }
 
-    public DomObject getRightNode() {
+    public XmlObject getRightNode() {
         return rightNode;
     }
 
-    public void setRightNode(DomObject rightNode) {
+    public void setRightNode(XmlObject rightNode) {
         this.rightNode = rightNode;
     }
 
-    public List<DomObject> getChildrenNodes() {
+    public List<XmlObject> getChildrenNodes() {
         return childrenNodes;
     }
 
+    // setter
+
+    public void setNodeValue(String nodeValue) {
+        this.nodeValue = nodeValue;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
+
+    public void setChildrenNodes(List<XmlObject> childrenNodes) {
+        this.childrenNodes = childrenNodes;
+    }
+
+
+    //
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof DomObject)) return false;
+        if (!(o instanceof XmlObject)) return false;
 
-        DomObject domObject = (DomObject) o;
+        XmlObject xmlObject = (XmlObject) o;
 
-        if (getRootName() != null ? !getRootName().equals(domObject.getRootName()) : domObject.getRootName() != null)
+        if (getRootName() != null ? !getRootName().equals(xmlObject.getRootName()) : xmlObject.getRootName() != null)
             return false;
-        if (getNodeValue() != null ? !getNodeValue().equals(domObject.getNodeValue()) : domObject.getNodeValue() != null)
+        if (getNodeValue() != null ? !getNodeValue().equals(xmlObject.getNodeValue()) : xmlObject.getNodeValue() != null)
             return false;
-        if (getAttributes() != null ? !getAttributes().equals(domObject.getAttributes()) : domObject.getAttributes() != null)
+        if (getAttributes() != null ? !getAttributes().equals(xmlObject.getAttributes()) : xmlObject.getAttributes() != null)
             return false;
-        if (getParentNode() != null ? !getParentNode().equals(domObject.getParentNode()) : domObject.getParentNode() != null)
+        if (parentNode() != null ? !parentNode().equals(xmlObject.parentNode()) : xmlObject.parentNode() != null)
             return false;
-        return getChildrenNodes() != null ? getChildrenNodes().equals(domObject.getChildrenNodes()) : domObject.getChildrenNodes() == null;
+        return getChildrenNodes() != null ? getChildrenNodes().equals(xmlObject.getChildrenNodes()) : xmlObject.getChildrenNodes() == null;
     }
 
     /**
@@ -221,7 +311,7 @@ public class DomObject {
         result = 31 * result + (getXmlPath() != null ? getXmlPath().hashCode() : 0);
         result = 31 * result + (getNodeValue() != null ? getNodeValue().hashCode() : 0);
         result = 31 * result + (getAttributes() != null ? getAttributes().hashCode() : 0);
-        result = 31 * result + (getParentNode() != null ? getParentNode().hashCode() : 0);
+        result = 31 * result + (parentNode() != null ? parentNode().hashCode() : 0);
         return result;
     }
 

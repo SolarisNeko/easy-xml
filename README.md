@@ -20,13 +20,13 @@ since from v1.2.0
 <dependency>
    <groupId>com.neko233</groupId>
    <artifactId>easy-xml</artifactId>
-   <version>1.3.1</version>
+   <version>1.4.0</version>
 </dependency>
 ```
 
 ## Gradle
 ```kotlin
-implementation("com.neko233:easy-xml:1.3.1")
+implementation("com.neko233:easy-xml:1.4.0")
 ```
 
 # Use
@@ -105,11 +105,11 @@ XML to object
                 "\t<demo id=\"2\"/>" +
                 "</root>";
 
-        DomObject domObject = XML.toObject(xml);
+        DomObject xmlObject = XML.toObject(xml);
 
-        List<DomObject> domObjects = XmlFinder.find(domObject, "/demo/node3*");
-        assert domObjects != null;
-        String id = domObjects.get(0).getAttribute("id");
+        List<DomObject> xmlObjects = XmlFinder.find(xmlObject, "/demo/node3*");
+        assert xmlObjects != null;
+        String id = xmlObjects.get(0).getAttribute("id");
         Assert.assertEquals("1-1", id);
     }
 ```

@@ -1,6 +1,6 @@
 package com.neko233.easyxml;
 
-import com.neko233.easyxml.data.DomObject;
+import com.neko233.easyxml.data.XmlObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -47,7 +47,7 @@ public interface XML {
         }
     }
 
-    static DomObject toObject(String xml) {
+    static XmlObject toObject(String xml) {
         Document document = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         StringReader characterStream = null;
@@ -66,7 +66,7 @@ public interface XML {
         }
         final Node root = document.getDocumentElement();
         String nodeValue = root.getNodeValue();
-        final DomObject domMap = new DomObject(root.getNodeName(), nodeValue, null);
+        final XmlObject domMap = new XmlObject(root.getNodeName(), nodeValue, null);
         initNodeTree(root, domMap);
         return domMap;
     }
@@ -92,7 +92,7 @@ public interface XML {
         }
     }
 
-    static  String toXmlString(DomObject obj) throws EasyXmlException {
+    static  String toXmlString(XmlObject obj) throws EasyXmlException {
         return obj.toXML();
     }
 
@@ -144,15 +144,15 @@ public interface XML {
     /**
      * XML Node Tree Liner 线性化
      *
-     * @param domObject dom object
+     * @param xmlObject dom object
      * @return liner Tree to List
      */
-    static List<DomObject> liner(DomObject domObject) {
-        final List<DomObject> rootChildNodes = Optional.ofNullable(domObject.getChildrenNodes())
+    static List<XmlObject> liner(XmlObject xmlObject) {
+        final List<XmlObject> rootChildNodes = Optional.ofNullable(xmlObject.getChildrenNodes())
                 .orElse(new ArrayList<>());
-        final List<DomObject> targetList = new ArrayList<>(rootChildNodes);
-        for (final DomObject childNode : rootChildNodes) {
-            final List<DomObject> liner = liner(childNode);
+        final List<XmlObject> targetList = new ArrayList<>(rootChildNodes);
+        for (final XmlObject childNode : rootChildNodes) {
+            final List<XmlObject> liner = liner(childNode);
             targetList.addAll(liner);
         }
         return targetList.stream()
