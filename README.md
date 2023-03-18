@@ -20,13 +20,13 @@ since from v1.2.0
 <dependency>
    <groupId>com.neko233</groupId>
    <artifactId>easy-xml</artifactId>
-   <version>1.4.0</version>
+   <version>1.5.0</version>
 </dependency>
 ```
 
 ## Gradle
 ```kotlin
-implementation("com.neko233:easy-xml:1.4.0")
+implementation("com.neko233:easy-xml:1.5.0")
 ```
 
 # Use

@@ -51,4 +51,17 @@ public class XmlObjectTest {
 
         Assert.assertEquals("/newDemo", demo.getXmlPath());
     }
+
+
+    @Test
+    public void toXml_getInteger() throws Exception {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                "<root name=\"test\">" +
+                "\t<demo id=\"1\">123</demo>" +
+                "</root>";
+
+        XmlObject xmlObject = XML.toObject(xml);
+
+        Assert.assertEquals(new Integer(1), xmlObject.getChild(0).getInteger("id"));
+    }
 }

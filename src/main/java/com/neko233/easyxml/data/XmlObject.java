@@ -2,6 +2,7 @@ package com.neko233.easyxml.data;
 
 
 import com.neko233.easyxml.EasyXmlException;
+import com.neko233.easyxml.api.XmlKvApi;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -23,7 +24,7 @@ import java.util.*;
  * @author SolarisNeko
  * Date on 2023-02-02
  */
-public class XmlObject {
+public class XmlObject implements XmlKvApi {
 
     public static final String XML_PATH_SEPERATOR = "/";
     // xml path = /path/to/your/node, it not remember your index
@@ -203,6 +204,7 @@ public class XmlObject {
 
     /**
      * 父节点
+     *
      * @return
      */
     public XmlObject parentNode() {
@@ -280,6 +282,28 @@ public class XmlObject {
     }
 
 
+    @Override
+    public List<String> getAllKeys() {
+        return new ArrayList<>(getAttributes().keySet());
+    }
+
+    @Override
+    public String getString(Integer index) {
+        int count = 0;
+        for (String key : getAttributes().keySet()) {
+            if (count == index) {
+                return getAttribute(key);
+            }
+            count++;
+        }
+        return null;
+    }
+
+    @Override
+    public String getString(String key) {
+        return getAttribute(key);
+    }
+
     //
 
     @Override
@@ -325,4 +349,5 @@ public class XmlObject {
                 ", parentNode=" + parentNode +
                 '}';
     }
+
 }
