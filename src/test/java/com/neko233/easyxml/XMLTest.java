@@ -7,6 +7,8 @@ import com.neko233.easyxml.data.XmlObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.List;
+
 /**
  * @author SolarisNeko
  * Date on 2023-01-01
@@ -66,8 +68,12 @@ public class XMLTest {
 
         XmlObject xmlObject = XML.toObject(xml);
 
+        // batch get all children
+//        List<XmlObject> children = xmlObject.getChildren();
+
         XmlObject dom2 = xmlObject.getChild(1);
         XmlObject dom3 = xmlObject.getChild(2);
+
         Assert.assertEquals("2", dom2.getAttribute("id"));
         Assert.assertEquals("123", dom2.getNodeValue());
         Assert.assertEquals("1", dom2.left().getAttribute("id"));

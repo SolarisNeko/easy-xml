@@ -29,20 +29,43 @@ since from v1.2.0
 implementation("com.neko233:easy-xml:1.5.0")
 ```
 
-# Use
-## Annotation
+# Code
+
+## XmlObject | 通用的 XML Node 操作对象 
+Like JSONObject to use
+
+像 JSON 一样使用 XmlObject
+
 ```java
-@XmlRootElement(name = "root")
-//<root ... />
 
-@XmlAttribute(name = "rootId")
-//<root rootId="???" />
+@Test
+public void toObject_brother() {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+        "<root name=\"test\">" +
+        "\t<demo id=\"1\"/>" +
+        "\t<demo id=\"2\">123</demo>" +
+        "\t<demo id=\"3\"/>" +
+        "</root>";
 
-@XmlAccessorType(XmlAccessType.FIELD)
-//how to create your field value
+        XmlObject xmlObject = XML.toObject(xml);
 
+        // batch get all children
+//        List<XmlObject> children = xmlObject.getChildren();
+
+        // get child 2 and child 3 | but index is -1
+        XmlObject dom2 = xmlObject.getChild(1);
+        XmlObject dom3 = xmlObject.getChild(2);
+
+        Assert.assertEquals("2", dom2.getAttribute("id"));
+        Assert.assertEquals("123", dom2.getNodeValue());
+        Assert.assertEquals("1", dom2.left().getAttribute("id"));
+        Assert.assertEquals(dom3, dom2.right());
+}
 ```
-## Code
+
+## XML ORM = String <-> Object
+
+### ORM Class Define 定义你的对象
 ```java
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -57,13 +80,16 @@ public class Demo {
     @XmlAttribute(name = "rootId") // attributeName | <root rootId="1" ..>
     private Integer rootId;
 
+//    @XmlRootElement(name = "root")
+//<root ... />
+
     
     // get / set
 }
 
 ```
 
-object to XML
+### object to XML | 对象 -> XML
 ```java
 String targetXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><demo rootId=\"1\"/>";
         
@@ -73,7 +99,7 @@ String targetXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?
  Assert.assertEquals(targetXml, s);
 ```
 
-XML to object 
+### XML to object | XML -> 对象 
 ```java
     @Test
     public void toObject_demo() {
