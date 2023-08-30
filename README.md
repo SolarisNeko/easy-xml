@@ -91,8 +91,9 @@ XML to object
 ```
 
 ## XmlFiner (DOM Tree 查询语法)
-简易的爬虫向 DSL 语法. 
-复杂的可以 DOM Object -> XML -> Xpath.
+
+一个简单的检索语法
+
 ```java
 
     @Test

@@ -5,14 +5,14 @@
 
     <groupId>com.neko233</groupId>
     <artifactId>easy-xml</artifactId>
-    <version>1.4.0</version>
+    <version>1.5.0</version>
 
 
     <name>easy-xml</name>
     <url>https://github.com/SolarisNeko/easy-xml/tree/main</url>
 
     <description>
-        Easy-XML. XML to Object / Object to XML ~
+        Easy-XML. XML to Object or reverse.
         XML ORM 工具, 和 fastjson 一样易用.
     </description>
 
