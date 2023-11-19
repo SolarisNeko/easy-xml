@@ -3,7 +3,7 @@
 ## 1.6.0
 1. [new] 接入了 XPath
 2. [new] XmlObject 和 w3c Document/Node 做了无缝衔接 
-3. [add] XPath by `avax.xml.parsers:jaxp-api`
+3. [add] XPath by `jaxp-api`
 4. [new] XPath233 utils
 
 
