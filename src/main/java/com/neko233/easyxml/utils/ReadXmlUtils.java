@@ -1,4 +1,4 @@
-package com.neko233.easyxml;
+package com.neko233.easyxml.utils;
 
 import java.io.*;
 import java.nio.charset.Charset;

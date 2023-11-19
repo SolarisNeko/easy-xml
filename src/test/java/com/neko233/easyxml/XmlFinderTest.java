@@ -23,7 +23,7 @@ public class XmlFinderTest {
                 "\t<demo id=\"2\"/>" +
                 "</root>";
 
-        XmlObject xmlObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.parseToObject(xml);
 
         List<XmlObject> xmlObjects = XmlFinder.find(xmlObject, "/demo");
         Assert.assertEquals(2, xmlObjects.size());
@@ -39,7 +39,7 @@ public class XmlFinderTest {
                 "\t<demo id=\"2\"/>" +
                 "</root>";
 
-        XmlObject xmlObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.parseToObject(xml);
 
         List<XmlObject> xmlObjects = XmlFinder.find(xmlObject, "/demo/node3rd");
         assert xmlObjects != null;
@@ -57,7 +57,7 @@ public class XmlFinderTest {
                 "\t<demo id=\"2\"/>" +
                 "</root>";
 
-        XmlObject xmlObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.parseToObject(xml);
 
         List<XmlObject> xmlObjects = XmlFinder.find(xmlObject, "/demo/node3*");
         assert xmlObjects != null;

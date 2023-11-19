@@ -4,10 +4,9 @@ package com.neko233.easyxml;
 import com.neko233.easyxml.data.AllXml;
 import com.neko233.easyxml.data.Demo;
 import com.neko233.easyxml.data.XmlObject;
+import com.neko233.easyxml.exception.EasyXmlException;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
 
 /**
  * @author SolarisNeko
@@ -22,9 +21,9 @@ public class XMLTest {
                 "\t<demo id=\"1\"/>" +
                 "</root>";
 
-        XmlObject xmlObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.parseToObject(xml);
 
-        Assert.assertEquals("root", xmlObject.getRootName());
+        Assert.assertEquals("root", xmlObject.getNodeName());
         Assert.assertEquals("test", xmlObject.getAttribute("name"));
         Assert.assertEquals("1", xmlObject.getChild(0).getAttribute("id"));
     }
@@ -36,7 +35,7 @@ public class XMLTest {
                 "\t<demo id=\"1\"/>" +
                 "</root>";
 
-        XmlObject xmlObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.parseToObject(xml);
 
         Assert.assertEquals("/demo", xmlObject.getChild(0).getXmlPath());
     }
@@ -51,7 +50,7 @@ public class XMLTest {
                 "\t<demo id=\"2\"/>" +
                 "</root>";
 
-        XmlObject xmlObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.parseToObject(xml);
 
         XmlObject node3rd_1 = xmlObject.getChild(0).getChild(0);
         Assert.assertEquals("/demo/node3rd", node3rd_1.getXmlPath());
@@ -66,7 +65,7 @@ public class XMLTest {
                 "\t<demo id=\"3\"/>" +
                 "</root>";
 
-        XmlObject xmlObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.parseToObject(xml);
 
         // batch get all children
 //        List<XmlObject> children = xmlObject.getChildren();
@@ -86,7 +85,7 @@ public class XMLTest {
 
         Demo demo = null;
         try {
-            demo = XML.toObject(xml, Demo.class);
+            demo = XML.parseToObject(xml, Demo.class);
         } catch (EasyXmlException e) {
             throw new RuntimeException(e);
         }
@@ -110,7 +109,7 @@ public class XMLTest {
 
         AllXml allXml = null;
         try {
-            allXml = XML.toObject(xml, AllXml.class);
+            allXml = XML.parseToObject(xml, AllXml.class);
         } catch (EasyXmlException e) {
             throw new RuntimeException(e);
         }
@@ -120,7 +119,10 @@ public class XMLTest {
 
     @Test
     public void toXml() throws EasyXmlException {
-        String targetXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><root><demo rootId=\"1\"/></root>";
+        String targetXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+                "<root>\n" +
+                "    <demo rootId=\"1\"/>\n" +
+                "</root>\n";
 
         AllXml allXml = AllXml.builder()
                 .demo(new Demo(1))
@@ -131,7 +133,8 @@ public class XMLTest {
 
     @Test
     public void toXml_demo() throws EasyXmlException {
-        String targetXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><demo rootId=\"1\"/>";
+        String targetXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+                "<demo rootId=\"1\"/>\n";
 
         Demo demo = new Demo(1);
         String s = XML.toXmlString(demo);

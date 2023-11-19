@@ -1,4 +1,4 @@
-package com.neko233.easyxml;
+package com.neko233.easyxml.exception;
 
 /**
  * @author SolarisNeko on 2023-01-01

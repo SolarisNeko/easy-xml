@@ -1,10 +1,10 @@
 package com.neko233.easyxml.data;
 
-
-import com.neko233.easyxml.EasyXmlException;
 import com.neko233.easyxml.api.XmlKvApi;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import com.neko233.easyxml.exception.EasyXmlException;
+import com.neko233.easyxml.utils.EasyXmlCollectionUtils;
+import com.neko233.easyxml.utils.EasyXmlStringUtils;
+import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,36 +15,155 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.*;
 import java.io.StringWriter;
 import java.util.*;
 
 /**
- * XML 对象
+ * XML 对象, 一切都是以 <root> 作为根节点 </root>
  *
  * @author SolarisNeko
  * Date on 2023-02-02
  */
 public class XmlObject implements XmlKvApi {
 
-    public static final String XML_PATH_SEPERATOR = "/";
     // xml path = /path/to/your/node, it not remember your index
     private String xmlPath;
-    private String rootName;
+
+    // 当前节点名称 <root .../>, nodeName = root
+    private String nodeName;
+    //  <root>${nodeValue}</root>
     private String nodeValue;
+    //  <root ${key1}="${value1}" /> --> key1 to value1
     private Map<String, String> attributes;
 
-    private volatile XmlObject parentNode;
-    private XmlObject leftNode;
-    private XmlObject rightNode;
-    private List<XmlObject> childrenNodes;
+    // parent
+    private volatile transient XmlObject parentNode;
+    // sibling
+    private transient XmlObject leftNode;
+    private transient XmlObject rightNode;
+    // child
+    private transient List<XmlObject> childrenNodes;
 
-    public XmlObject(String rootName, String nodeValue, XmlObject parentNode) {
-        this.xmlPath = generateXmlPath(rootName, parentNode);
-        this.nodeValue = Optional.ofNullable(nodeValue).orElse("").trim();
-        this.rootName = rootName;
+    /**
+     * @param nodeName   <${nodeName} .../>
+     * @param parentNode parent
+     */
+    public XmlObject(String nodeName, XmlObject parentNode) {
+        this.xmlPath = refreshXmlPath(nodeName, parentNode);
+        this.nodeName = nodeName;
         this.attributes = new HashMap<>(0);
         this.parentNode = parentNode;
         this.childrenNodes = new ArrayList<>(0);
+    }
+
+    /**
+     * @param nodeName   <${nodeName} .../>
+     * @param nodeValue  <root>${nodeValue}</root>, XML 规范中 nodeValue 其实是一个 child node...
+     * @param parentNode parent
+     */
+    public XmlObject(String nodeName, String nodeValue, XmlObject parentNode) {
+        this.xmlPath = refreshXmlPath(nodeName, parentNode);
+        this.nodeValue = Optional.ofNullable(nodeValue).orElse("").trim();
+        this.nodeName = nodeName;
+        this.attributes = new HashMap<>(0);
+        this.parentNode = parentNode;
+        this.childrenNodes = new ArrayList<>(0);
+    }
+
+    /**
+     * 从通用规范读取
+     * Static method to create an XmlObject from a org.w3c.dom.Node.
+     *
+     * @param node The org.w3c.dom.Node to convert.
+     * @return XmlObject representing the given Node.
+     */
+    public static XmlObject fromW3cNode(Node node) {
+        if (node == null) {
+            return null;
+        }
+
+        XmlObject xmlObject = new XmlObject(node.getNodeName(), node.getTextContent(), null);
+
+        // Set attributes
+        NamedNodeMap attributes = node.getAttributes();
+        if (attributes != null) {
+            for (int i = 0; i < attributes.getLength(); i++) {
+                Node attributeNode = attributes.item(i);
+                xmlObject.addAttribute(attributeNode.getNodeName(), attributeNode.getNodeValue());
+            }
+        }
+
+        // Set children nodes
+        NodeList childNodes = node.getChildNodes();
+        if (childNodes != null) {
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node childNode = childNodes.item(i);
+                if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+                    XmlObject childXmlObject = fromW3cNode(childNode);
+                    childXmlObject.parentNode(xmlObject);
+                    xmlObject.addChild(childXmlObject);
+                }
+            }
+        }
+
+        return xmlObject;
+    }
+
+    /**
+     * 创建 w3c 的 xml 文档 root
+     *
+     * @return w3c node root
+     */
+    private Document createW3cDocument() {
+        try {
+            DocumentBuilderFactory domFact = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = domFact.newDocumentBuilder();
+            return builder.newDocument();
+        } catch (ParserConfigurationException e) {
+            // Handle the exception according to your needs
+            throw new RuntimeException("XmlObject to w3cNode, auto create Document error", e);
+        }
+    }
+
+    /**
+     * 转换成通用规范
+     * Convert XmlObject to org.w3c.dom.Node.
+     *
+     * @return org.w3c.dom.Node representing this XmlObject.
+     */
+    public org.w3c.dom.Node toW3cNode() {
+        Document document = createW3cDocument();
+        return toW3cNode(document);
+    }
+
+    /**
+     * 转换成通用规范
+     * Convert XmlObject to org.w3c.dom.Node.
+     *
+     * @param document The Document to create nodes.
+     * @return org.w3c.dom.Node representing this XmlObject.
+     */
+    public org.w3c.dom.Node toW3cNode(Document document) {
+        Element element = document.createElement(this.nodeName);
+
+        // text 为空的时候不塞入
+        if (!EasyXmlStringUtils.isBlank(this.nodeName) && EasyXmlCollectionUtils.isEmpty(this.childrenNodes)) {
+            element.setTextContent(this.nodeValue);
+        }
+
+        // Set attributes
+        for (Map.Entry<String, String> entry : this.attributes.entrySet()) {
+            element.setAttribute(entry.getKey(), entry.getValue());
+        }
+
+        // Set children nodes
+        for (XmlObject childXmlObject : this.childrenNodes) {
+            org.w3c.dom.Node childNode = childXmlObject.toW3cNode(document);
+            element.appendChild(childNode);
+        }
+
+        return element;
     }
 
     /**
@@ -54,7 +173,7 @@ public class XmlObject implements XmlKvApi {
      * @param parentNode 父节点
      * @return XML Path
      */
-    private String generateXmlPath(String rootName, XmlObject parentNode) {
+    private String refreshXmlPath(String rootName, XmlObject parentNode) {
         if (parentNode == null) {
             updateXmlPathListener();
             return "/";
@@ -79,13 +198,13 @@ public class XmlObject implements XmlKvApi {
         }
         // tree update xmlPath
         for (XmlObject childNode : children) {
-            childNode.xmlPath = generateXmlPath(childNode.rootName, this);
+            childNode.xmlPath = refreshXmlPath(childNode.nodeName, this);
         }
     }
 
 
-    public String toXML() throws EasyXmlException {
-        return toXML(false);
+    public String toXmlString() throws EasyXmlException {
+        return toXmlString(true);
     }
 
     /**
@@ -94,15 +213,21 @@ public class XmlObject implements XmlKvApi {
      * @return XML String
      * @throws EasyXmlException 解析异常
      */
-    public String toXML(boolean isFormat) throws EasyXmlException {
+    public String toXmlString(boolean isPrettyFormat) throws EasyXmlException {
         try {
             DocumentBuilderFactory domFact = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = domFact.newDocumentBuilder();
             Document doc = builder.newDocument();
 
-            Element el = doc.createElement(this.rootName);
+            // 创建根节点
+            Element el = doc.createElement(this.nodeName);
             this.attributes.forEach(el::setAttribute);
-            el.setNodeValue(this.nodeValue);
+
+            // Only set node value for non-root nodes
+            if (this.parentNode != null) {
+                el.setTextContent(this.nodeValue);
+            }
+
             doc.appendChild(el);
 
             for (XmlObject childrenNode : this.childrenNodes) {
@@ -112,9 +237,12 @@ public class XmlObject implements XmlKvApi {
             DOMSource domSource = new DOMSource(doc);
             StringWriter writer = new StringWriter();
             StreamResult result = new StreamResult(writer);
+
+            // 设置 Transformer 的属性，包括 XML 头部信息
             TransformerFactory tf = TransformerFactory.newInstance();
             Transformer transformer = tf.newTransformer();
-            String isIndent = isFormat ? "yes" : "no";
+            String isIndent = isPrettyFormat ? "yes" : "no";
+
             transformer.setOutputProperty(OutputKeys.INDENT, isIndent);
             transformer.transform(domSource, result);
             return writer.toString();
@@ -131,7 +259,7 @@ public class XmlObject implements XmlKvApi {
      * @param xmlObject
      */
     private static void createNodeTreeByRecursive(Document doc, Element parentNode, XmlObject xmlObject) {
-        Element currentNode = doc.createElement(xmlObject.rootName);
+        Element currentNode = doc.createElement(xmlObject.nodeName);
         xmlObject.attributes.forEach(currentNode::setAttribute);
         currentNode.setTextContent(xmlObject.nodeValue);
         parentNode.appendChild(currentNode);
@@ -149,8 +277,8 @@ public class XmlObject implements XmlKvApi {
         return xmlPath;
     }
 
-    public String getRootName() {
-        return rootName;
+    public String getNodeName() {
+        return nodeName;
     }
 
     public String getAttribute(String attributeName) {
@@ -160,7 +288,6 @@ public class XmlObject implements XmlKvApi {
     public void addAttribute(String attributeName, String attributeValue) {
         attributes.put(attributeName, attributeValue);
     }
-
 
     public void removeAttribute(String attributeName) {
         attributes.remove(attributeName);
@@ -178,11 +305,9 @@ public class XmlObject implements XmlKvApi {
         childrenNodes.add(childNode);
     }
 
-
     public void removeChild(XmlObject childNode) {
-        attributes.remove(childNode);
+        childrenNodes.remove(childNode);
     }
-
 
     public XmlObject left() {
         return this.leftNode;
@@ -216,26 +341,24 @@ public class XmlObject implements XmlKvApi {
      */
     public XmlObject parentNode(XmlObject parentNode) {
         this.parentNode = parentNode;
-        this.xmlPath = generateXmlPath(this.rootName, parentNode);
+        this.xmlPath = refreshXmlPath(this.nodeName, parentNode);
         return this;
     }
 
     /**
      * 当前节点名
      *
-     * @param newRootName
+     * @param nodeName
      * @return
      */
-    public XmlObject rootName(String newRootName) {
-        this.rootName = newRootName;
-        this.xmlPath = generateXmlPath(this.rootName, this.parentNode);
+    public XmlObject nodeName(String nodeName) {
+        this.nodeName = nodeName;
+        this.xmlPath = refreshXmlPath(this.nodeName, this.parentNode);
 
         return this;
     }
 
-
     // --------- @Data ----
-
 
     public String getNodeValue() {
         return nodeValue;
@@ -244,7 +367,6 @@ public class XmlObject implements XmlKvApi {
     public Map<String, String> getAttributes() {
         return attributes;
     }
-
 
     public XmlObject getLeftNode() {
         return leftNode;
@@ -276,11 +398,9 @@ public class XmlObject implements XmlKvApi {
         this.attributes = attributes;
     }
 
-
     public void setChildrenNodes(List<XmlObject> childrenNodes) {
         this.childrenNodes = childrenNodes;
     }
-
 
     @Override
     public List<String> getAllKeys() {
@@ -304,7 +424,66 @@ public class XmlObject implements XmlKvApi {
         return getAttribute(key);
     }
 
-    //
+    /**
+     * [XPath]
+     * 执行XPath查询并返回XmlObject列表
+     * ps: currentNode = xpath startPath
+     * like: root (current) > child, xpath you find child just use "child"
+     *
+     * @param xpathExpression XPath表达式
+     * @return 匹配的XmlObject列表
+     */
+    public List<XmlObject> parseByXpathExpression(String xpathExpression) throws EasyXmlException {
+        try {
+            XPathFactory xPathFactory = XPathFactory.newInstance();
+            XPath xPath = xPathFactory.newXPath();
+
+            // 编译XPath表达式
+            XPathExpression expression = xPath.compile(xpathExpression);
+
+            // 执行XPath查询
+            Node rootNode = this.toW3cNode();
+            // 节点集查找
+            NodeList nodeList = (NodeList) expression.evaluate(rootNode, XPathConstants.NODESET);
+
+            // 将查询结果转换为XmlObject列表
+            List<XmlObject> result = new ArrayList<>();
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node node = nodeList.item(i);
+                XmlObject xmlObject = XmlObject.fromW3cNode(node);
+                result.add(xmlObject);
+            }
+
+            return result;
+        } catch (XPathExpressionException e) {
+            throw new EasyXmlException("XPath evaluation error", e);
+        }
+    }
+
+    /**
+     * 将 XmlObject 转换为 Document
+     *
+     * @return 转换后的 Document
+     */
+    public Document toDocument() {
+        try {
+            DocumentBuilderFactory domFact = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = domFact.newDocumentBuilder();
+
+            // 创建新的 Document
+            Document document = builder.newDocument();
+
+            // 转换 XmlObject 到 Document
+            Node rootElement = this.toW3cNode(document);
+            document.appendChild(document.importNode(rootElement, true));
+
+            return document;
+        } catch (ParserConfigurationException e) {
+            // Handle the exception according to your needs
+            throw new RuntimeException("XmlObject to Document conversion error", e);
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -313,7 +492,7 @@ public class XmlObject implements XmlKvApi {
 
         XmlObject xmlObject = (XmlObject) o;
 
-        if (getRootName() != null ? !getRootName().equals(xmlObject.getRootName()) : xmlObject.getRootName() != null)
+        if (getNodeName() != null ? !getNodeName().equals(xmlObject.getNodeName()) : xmlObject.getNodeName() != null)
             return false;
         if (getNodeValue() != null ? !getNodeValue().equals(xmlObject.getNodeValue()) : xmlObject.getNodeValue() != null)
             return false;
@@ -331,7 +510,7 @@ public class XmlObject implements XmlKvApi {
      */
     @Override
     public int hashCode() {
-        int result = getRootName() != null ? getRootName().hashCode() : 0;
+        int result = getNodeName() != null ? getNodeName().hashCode() : 0;
         result = 31 * result + (getXmlPath() != null ? getXmlPath().hashCode() : 0);
         result = 31 * result + (getNodeValue() != null ? getNodeValue().hashCode() : 0);
         result = 31 * result + (getAttributes() != null ? getAttributes().hashCode() : 0);
@@ -343,11 +522,12 @@ public class XmlObject implements XmlKvApi {
     public String toString() {
         return "DomObject{" +
                 "xmlPath='" + xmlPath + '\'' +
-                ", rootName='" + rootName + '\'' +
+                ", rootName='" + nodeName + '\'' +
                 ", nodeValue='" + nodeValue + '\'' +
                 ", attributes=" + attributes +
                 ", parentNode=" + parentNode +
                 '}';
     }
+
 
 }

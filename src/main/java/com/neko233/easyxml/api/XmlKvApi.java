@@ -1,5 +1,7 @@
 package com.neko233.easyxml.api;
 
+import org.w3c.dom.Document;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -137,4 +139,5 @@ public interface XmlKvApi {
     }
 
 
+    Document toDocument();
 }

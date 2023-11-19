@@ -14,9 +14,12 @@ public class XmlObjectTest {
                 "\t<demo id=\"1\">123</demo>" +
                 "</root>";
 
-        XmlObject xmlObject = XML.toObject(xml);
-        String target = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><root name=\"test\"><demo id=\"1\">123</demo></root>";
-        Assert.assertEquals(target, xmlObject.toXML());
+        XmlObject xmlObject = XML.parseToObject(xml);
+        String target = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+                "<root name=\"test\">\n" +
+                "<demo id=\"1\">123</demo>\n" +
+                "</root>\n";
+        Assert.assertEquals(target, xmlObject.toXmlString());
     }
 
 
@@ -27,11 +30,14 @@ public class XmlObjectTest {
                 "\t<demo id=\"1\">123</demo>" +
                 "</root>";
 
-        XmlObject xmlObject = XML.toObject(xml);
-        xmlObject.rootName("newRoot");
+        XmlObject xmlObject = XML.parseToObject(xml);
+        xmlObject.nodeName("newRoot");
 
-        String target = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><newRoot name=\"test\"><demo id=\"1\">123</demo></newRoot>";
-        Assert.assertEquals(target, xmlObject.toXML());
+        String target = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+                "<newRoot name=\"test\">\n" +
+                "<demo id=\"1\">123</demo>\n" +
+                "</newRoot>\n";
+        Assert.assertEquals(target, xmlObject.toXmlString());
         Assert.assertEquals("/", xmlObject.getXmlPath());
     }
 
@@ -43,11 +49,11 @@ public class XmlObjectTest {
                 "\t<demo id=\"1\">123</demo>" +
                 "</root>";
 
-        XmlObject xmlObject = XML.toObject(xml);
-        xmlObject.rootName("newRoot");
+        XmlObject xmlObject = XML.parseToObject(xml);
+        xmlObject.nodeName("newRoot");
 
         XmlObject demo = xmlObject.getChild(0);
-        demo.rootName("newDemo");
+        demo.nodeName("newDemo");
 
         Assert.assertEquals("/newDemo", demo.getXmlPath());
     }
@@ -60,7 +66,7 @@ public class XmlObjectTest {
                 "\t<demo id=\"1\">123</demo>" +
                 "</root>";
 
-        XmlObject xmlObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.parseToObject(xml);
 
         Assert.assertEquals(new Integer(1), xmlObject.getChild(0).getInteger("id"));
     }

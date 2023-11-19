@@ -1,10 +1,17 @@
 # RoadMap - EasyXml
 
+## 1.6.0
+1. [new] 接入了 XPath
+2. [new] XmlObject 和 w3c Document/Node 做了无缝衔接 
+3. [add] XPath by `avax.xml.parsers:jaxp-api`
+4. [new] XPath233 utils
+
+
 ## 1.5.0
 1. [Add] XML kv API
 
 
-## 1.5.0
+## 1.4.0
 1. [Update] DomObject -> XmlObject
 2. [Refactor] 调整 API. Tree Operate 脱离 get/set, 以类似 get parentNode() / set parentNode(XmlObject) 命名
 3. [Add] 提供修改 (局部) XmlObject 后, 重新 serialize to XML String 机制. 

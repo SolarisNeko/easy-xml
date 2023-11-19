@@ -12,6 +12,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
+ * {@link javax.xml.xpath.XPath} this is xpath simple like utils
  * Search & Match stream in XML DOM.
  * Use like Xpath
  * <p>
@@ -40,7 +41,7 @@ public class XmlFinder {
     }
 
     public static List<XmlObject> find(String xml, String path) {
-        XmlObject xmlObject = XML.toObject(xml);
+        XmlObject xmlObject = XML.parseToObject(xml);
         return find(xmlObject, path);
     }
 
