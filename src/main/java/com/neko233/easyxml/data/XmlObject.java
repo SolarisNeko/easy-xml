@@ -18,6 +18,8 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.*;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * XML 对象, 一切都是以 <root> 作为根节点 </root>
@@ -285,6 +287,10 @@ public class XmlObject implements XmlKvApi {
         return attributes.get(attributeName);
     }
 
+    public String getAttributeOrDefault(String attributeName, String defaultValue) {
+        return attributes.getOrDefault(attributeName, defaultValue);
+    }
+
     public void addAttribute(String attributeName, String attributeValue) {
         attributes.put(attributeName, attributeValue);
     }
@@ -295,6 +301,19 @@ public class XmlObject implements XmlKvApi {
 
     public XmlObject getChild(int index) {
         return childrenNodes.get(index);
+    }
+
+    public List<XmlObject> getChildByFilter(Predicate<XmlObject> filter
+    ) {
+        return childrenNodes.stream()
+                .filter(filter)
+                .collect(Collectors.toList());
+    }
+
+    public List<XmlObject> getChildByName(String nodeName) {
+        return childrenNodes.stream()
+                .filter(it -> nodeName.equals(it.nodeName))
+                .collect(Collectors.toList());
     }
 
     public List<XmlObject> getChildren() {
